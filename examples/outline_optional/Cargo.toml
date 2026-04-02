@@ -1,0 +1,16 @@
+[package]
+name = "saddle-rendering-toon-shader-example-outline-optional"
+version = "0.1.0"
+edition = "2024"
+publish = false
+
+[dependencies]
+bevy = "0.18"
+saddle-rendering-toon-shader = { path = "../.." }
+saddle-rendering-toon-shader-example-common = { path = "../common" }
+saddle-rendering-outline = { git = "https://github.com/julien-blanchon/saddle-rendering-outline" }
+
+[lints.clippy]
+too_many_arguments = "allow"
+type_complexity = "allow"
+nonstandard_macro_braces = "warn"
