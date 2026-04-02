@@ -26,7 +26,11 @@ fn setup(
     mut standard_materials: ResMut<Assets<StandardMaterial>>,
     mut toon_materials: ResMut<Assets<ToonMaterial>>,
 ) {
-    common::spawn_camera(&mut commands, Vec3::new(0.0, 4.6, 11.0), Vec3::new(0.0, 1.2, -0.2));
+    common::spawn_camera(
+        &mut commands,
+        Vec3::new(0.0, 4.6, 11.0),
+        Vec3::new(0.0, 1.2, -0.2),
+    );
     common::spawn_lighting(&mut commands);
     common::spawn_ground(
         &mut commands,
@@ -38,13 +42,13 @@ fn setup(
     commands.spawn((
         Name::new("Outlined Toon Mesh"),
         Mesh3d(meshes.add(Sphere::new(1.25).mesh().uv(32, 18))),
-        MeshMaterial3d(toon_materials.add(
-            ToonExtension::anime_character().material(StandardMaterial {
+        MeshMaterial3d(
+            toon_materials.add(ToonExtension::anime_character().material(StandardMaterial {
                 base_color: Color::srgb(0.86, 0.78, 0.68),
                 perceptual_roughness: 0.34,
                 ..default()
-            }),
-        )),
+            })),
+        ),
         Transform::from_xyz(0.0, 1.35, -0.4),
         DemoSpin {
             axis: Vec3::new(0.0, 1.0, 0.15),

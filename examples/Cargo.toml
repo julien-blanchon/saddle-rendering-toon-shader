@@ -19,3 +19,4 @@ saddle-rendering-outline = { git = "https://github.com/julien-blanchon/saddle-re
 too_many_arguments = "allow"
 type_complexity = "allow"
 nonstandard_macro_braces = "warn"
+collapsible_if = "allow"

@@ -3,9 +3,7 @@ use bevy::ecs::component::Component;
 use bevy::pbr::{ExtendedMaterial, MaterialExtension, OpaqueRendererMethod, StandardMaterial};
 use bevy::prelude::*;
 use bevy::render::render_asset::RenderAssets;
-use bevy::render::render_resource::{
-    AsBindGroup, AsBindGroupShaderType, ShaderType,
-};
+use bevy::render::render_resource::{AsBindGroup, AsBindGroupShaderType, ShaderType};
 use bevy::render::texture::GpuImage;
 use bevy::shader::ShaderRef;
 
@@ -351,10 +349,7 @@ impl Default for ToonExtension {
 }
 
 impl AsBindGroupShaderType<ToonExtensionUniform> for ToonExtension {
-    fn as_bind_group_shader_type(
-        &self,
-        _images: &RenderAssets<GpuImage>,
-    ) -> ToonExtensionUniform {
+    fn as_bind_group_shader_type(&self, _images: &RenderAssets<GpuImage>) -> ToonExtensionUniform {
         self.sanitized_uniform()
     }
 }

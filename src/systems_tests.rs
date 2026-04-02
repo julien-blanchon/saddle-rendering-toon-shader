@@ -86,8 +86,16 @@ fn direct_material_replacement_creates_toon_material_asset() {
     app.world_mut().run_schedule(Tick);
     app.world_mut().run_schedule(Tick);
 
-    assert!(app.world().get::<MeshMaterial3d<StandardMaterial>>(entity).is_none());
-    assert!(app.world().get::<MeshMaterial3d<ToonMaterial>>(entity).is_some());
+    assert!(
+        app.world()
+            .get::<MeshMaterial3d<StandardMaterial>>(entity)
+            .is_none()
+    );
+    assert!(
+        app.world()
+            .get::<MeshMaterial3d<ToonMaterial>>(entity)
+            .is_some()
+    );
 
     let diagnostics = app.world().resource::<ToonShaderDiagnostics>();
     assert_eq!(diagnostics.managed_direct_entities, 1);
@@ -146,8 +154,16 @@ fn scene_replacement_reuses_one_toon_material_per_source_handle_and_stops() {
         .clone();
 
     assert_eq!(first_handle.id(), second_handle.id());
-    assert!(app.world().get::<MeshMaterial3d<StandardMaterial>>(child_a).is_none());
-    assert!(app.world().get::<MeshMaterial3d<StandardMaterial>>(child_b).is_none());
+    assert!(
+        app.world()
+            .get::<MeshMaterial3d<StandardMaterial>>(child_a)
+            .is_none()
+    );
+    assert!(
+        app.world()
+            .get::<MeshMaterial3d<StandardMaterial>>(child_b)
+            .is_none()
+    );
     assert!(
         app.world()
             .get::<crate::components::ToonSceneReplacementComplete>(root)
@@ -255,14 +271,24 @@ fn deactivation_stops_runtime_work_until_reactivated() {
         .id();
 
     app.world_mut().run_schedule(Tick);
-    assert!(app.world().get::<MeshMaterial3d<ToonMaterial>>(entity).is_none());
+    assert!(
+        app.world()
+            .get::<MeshMaterial3d<ToonMaterial>>(entity)
+            .is_none()
+    );
 
     app.world_mut().run_schedule(Activate);
     app.world_mut().run_schedule(Tick);
-    assert!(app.world().get::<MeshMaterial3d<ToonMaterial>>(entity).is_some());
+    assert!(
+        app.world()
+            .get::<MeshMaterial3d<ToonMaterial>>(entity)
+            .is_some()
+    );
 
     app.world_mut().run_schedule(Deactivate);
-    app.world_mut().entity_mut(entity).insert(ToonExtension::anime_character());
+    app.world_mut()
+        .entity_mut(entity)
+        .insert(ToonExtension::anime_character());
     app.world_mut().run_schedule(Tick);
 
     let material_handle = app

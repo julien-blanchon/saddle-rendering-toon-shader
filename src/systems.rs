@@ -4,10 +4,12 @@ use bevy::asset::AssetId;
 use bevy::pbr::MeshMaterial3d;
 use bevy::prelude::*;
 
-use crate::components::{ToonManagedMaterial, ToonManagedMaterialSource, ToonRuntimeState, ToonShaderDiagnostics};
+use crate::ToonExtension;
+use crate::components::{
+    ToonManagedMaterial, ToonManagedMaterialSource, ToonRuntimeState, ToonShaderDiagnostics,
+};
 use crate::material::ToonMaterial;
 use crate::utils::iter_descendants;
-use crate::ToonExtension;
 
 pub(crate) fn activate_runtime(mut runtime: ResMut<ToonRuntimeState>) {
     runtime.active = true;
@@ -45,7 +47,8 @@ pub(crate) fn sync_runtime_parameters(
         let mut seen_handles = HashSet::<AssetId<ToonMaterial>>::default();
 
         for descendant in iter_descendants(root, &children) {
-            let Ok((toon_handle, local_override)) = descendant_toon_materials.get(descendant) else {
+            let Ok((toon_handle, local_override)) = descendant_toon_materials.get(descendant)
+            else {
                 continue;
             };
 

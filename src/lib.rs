@@ -10,9 +10,7 @@ mod systems;
 mod utils;
 
 pub use components::ToonShaderDiagnostics;
-pub use material::{
-    ToonDiffuseMode, ToonExtension, ToonMaterial, ToonRim, ToonSpecular,
-};
+pub use material::{ToonDiffuseMode, ToonExtension, ToonMaterial, ToonRim, ToonSpecular};
 pub use plugin::{ToonShaderPlugin, ToonShaderSystems};
 
 pub(crate) use material::build_toon_material;

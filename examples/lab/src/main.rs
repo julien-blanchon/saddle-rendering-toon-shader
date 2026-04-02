@@ -231,13 +231,15 @@ fn setup(
         .spawn((
             Name::new("Normal Mapped Mesh"),
             NormalMappedMesh,
-            Mesh3d(meshes.add(
-                Sphere::new(1.25)
-                    .mesh()
-                    .uv(32, 18)
-                    .with_generated_tangents()
-                    .expect("UV sphere should generate tangents"),
-            )),
+            Mesh3d(
+                meshes.add(
+                    Sphere::new(1.25)
+                        .mesh()
+                        .uv(32, 18)
+                        .with_generated_tangents()
+                        .expect("UV sphere should generate tangents"),
+                ),
+            ),
             MeshMaterial3d(standard_materials.add(StandardMaterial {
                 base_color: Color::WHITE,
                 base_color_texture: Some(checker),
@@ -254,9 +256,8 @@ fn setup(
         ))
         .id();
 
-    let flight_helmet = asset_server.load(
-        GltfAssetLabel::Scene(0).from_asset("models/FlightHelmet/FlightHelmet.gltf"),
-    );
+    let flight_helmet = asset_server
+        .load(GltfAssetLabel::Scene(0).from_asset("models/FlightHelmet/FlightHelmet.gltf"));
     let standard_scene_root = commands
         .spawn((
             Name::new("Standard Flight Helmet"),
@@ -383,7 +384,11 @@ fn update_overlay(
         diagnostics.managed_scene_entities
     );
     let _ = writeln!(&mut body, "scene roots: {}", diagnostics.scene_roots);
-    let _ = writeln!(&mut body, "toon material assets: {}", diagnostics.toon_material_assets);
+    let _ = writeln!(
+        &mut body,
+        "toon material assets: {}",
+        diagnostics.toon_material_assets
+    );
     let _ = writeln!(
         &mut body,
         "ramp/spec/rim: {}/{}/{}",

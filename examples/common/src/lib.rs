@@ -2,9 +2,7 @@ use std::path::PathBuf;
 
 use bevy::app::AppExit;
 use bevy::asset::{AssetPlugin, RenderAssetUsages};
-use bevy::image::{
-    ImageAddressMode, ImageFilterMode, ImageSampler, ImageSamplerDescriptor,
-};
+use bevy::image::{ImageAddressMode, ImageFilterMode, ImageSampler, ImageSamplerDescriptor};
 use bevy::prelude::*;
 use bevy::render::render_resource::{Extent3d, TextureDimension, TextureFormat};
 use bevy::winit::WinitSettings;

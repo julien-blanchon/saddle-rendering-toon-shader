@@ -4,12 +4,14 @@ use bevy::asset::AssetId;
 use bevy::light::DirectionalLight;
 use bevy::pbr::MeshMaterial3d;
 use bevy::prelude::*;
+use saddle_rendering_toon_shader::{
+    ToonExtension, ToonMaterial, ToonRim, ToonShaderDiagnostics, ToonSpecular,
+};
 use saddle_saddle_bevy_e2e::{
     action::Action,
     actions::{assertions, inspect},
     scenario::Scenario,
 };
-use saddle_rendering_toon_shader::{ToonExtension, ToonMaterial, ToonShaderDiagnostics, ToonRim, ToonSpecular};
 
 use crate::{
     GLOSSY_STAGE_POS, HERO_STAGE_POS, LabAssets, LabEntities, LabSunRig, NORMAL_STAGE_POS,
@@ -182,7 +184,10 @@ fn scene_material_breakdown(world: &World, root: Entity) -> SceneMaterialBreakdo
     let mut breakdown = SceneMaterialBreakdown::default();
 
     for entity in descendants_of(world, root) {
-        if world.get::<MeshMaterial3d<StandardMaterial>>(entity).is_some() {
+        if world
+            .get::<MeshMaterial3d<StandardMaterial>>(entity)
+            .is_some()
+        {
             breakdown.standard_materials += 1;
         }
         if world.get::<MeshMaterial3d<ToonMaterial>>(entity).is_some() {
@@ -229,27 +234,23 @@ fn gltf_roots_diverge(world: &World) -> bool {
 fn focus_camera_wide_showcase(world: &mut World) {
     let lab = *world.resource::<LabEntities>();
     let mut camera = world.entity_mut(lab.camera);
-    let mut transform = camera
-        .get_mut::<Transform>()
-        .expect("camera should exist");
-    *transform = Transform::from_xyz(2.4, 7.8, 15.4).looking_at(Vec3::new(1.8, 2.8, -0.85), Vec3::Y);
+    let mut transform = camera.get_mut::<Transform>().expect("camera should exist");
+    *transform =
+        Transform::from_xyz(2.4, 7.8, 15.4).looking_at(Vec3::new(1.8, 2.8, -0.85), Vec3::Y);
 }
 
 fn focus_camera_on_scenes(world: &mut World) {
     let lab = *world.resource::<LabEntities>();
     let mut camera = world.entity_mut(lab.camera);
-    let mut transform = camera
-        .get_mut::<Transform>()
-        .expect("camera should exist");
-    *transform = Transform::from_xyz(8.2, 3.7, 10.4).looking_at(Vec3::new(8.25, 1.95, -0.9), Vec3::Y);
+    let mut transform = camera.get_mut::<Transform>().expect("camera should exist");
+    *transform =
+        Transform::from_xyz(8.2, 3.7, 10.4).looking_at(Vec3::new(8.25, 1.95, -0.9), Vec3::Y);
 }
 
 fn focus_camera_on_gltf_update(world: &mut World) {
     let lab = *world.resource::<LabEntities>();
     let mut camera = world.entity_mut(lab.camera);
-    let mut transform = camera
-        .get_mut::<Transform>()
-        .expect("camera should exist");
+    let mut transform = camera.get_mut::<Transform>().expect("camera should exist");
     *transform = Transform::from_xyz(9.8, 3.2, 7.9)
         .looking_at(Vec3::new(TOON_HELMET_POS.x, 1.95, -0.9), Vec3::Y);
 }
@@ -447,7 +448,8 @@ fn configure_shadow_stress_showcase(world: &mut World) {
     let mut transform = camera
         .get_mut::<Transform>()
         .expect("lab camera should exist");
-    *transform = Transform::from_xyz(5.4, 6.1, 10.8).looking_at(Vec3::new(4.1, 2.7, -0.95), Vec3::Y);
+    *transform =
+        Transform::from_xyz(5.4, 6.1, 10.8).looking_at(Vec3::new(4.1, 2.7, -0.95), Vec3::Y);
 }
 
 fn set_sun_transform(world: &mut World, sun: Entity, translation: Vec3, target: Vec3) {
@@ -458,8 +460,6 @@ fn set_sun_transform(world: &mut World, sun: Entity, translation: Vec3, target: 
     }
 
     let mut sun_entity = world.entity_mut(sun);
-    let mut transform = sun_entity
-        .get_mut::<Transform>()
-        .expect("sun should exist");
+    let mut transform = sun_entity.get_mut::<Transform>().expect("sun should exist");
     *transform = Transform::from_translation(translation).looking_at(target, Vec3::Y);
 }

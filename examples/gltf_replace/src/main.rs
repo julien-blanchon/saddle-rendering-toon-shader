@@ -36,9 +36,8 @@ fn setup(
         &mut images,
     );
 
-    let flight_helmet = asset_server.load(
-        GltfAssetLabel::Scene(0).from_asset("models/FlightHelmet/FlightHelmet.gltf"),
-    );
+    let flight_helmet = asset_server
+        .load(GltfAssetLabel::Scene(0).from_asset("models/FlightHelmet/FlightHelmet.gltf"));
 
     commands.spawn((
         Name::new("Original Flight Helmet"),

@@ -8,7 +8,10 @@ pub struct ToonShaderLabE2EPlugin;
 impl Plugin for ToonShaderLabE2EPlugin {
     fn build(&self, app: &mut App) {
         app.add_plugins(E2EPlugin);
-        app.configure_sets(Update, E2ESet.before(saddle_rendering_toon_shader::ToonShaderSystems::ReplaceSceneMaterials));
+        app.configure_sets(
+            Update,
+            E2ESet.before(saddle_rendering_toon_shader::ToonShaderSystems::ReplaceSceneMaterials),
+        );
 
         let args: Vec<String> = std::env::args().collect();
         let (scenario_name, handoff) = parse_e2e_args(&args);

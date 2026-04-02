@@ -2,7 +2,9 @@ use saddle_rendering_toon_shader_example_common as common;
 
 use bevy::prelude::*;
 use common::DemoSpin;
-use saddle_rendering_toon_shader::{ToonExtension, ToonMaterial, ToonRim, ToonShaderPlugin, ToonSpecular};
+use saddle_rendering_toon_shader::{
+    ToonExtension, ToonMaterial, ToonRim, ToonShaderPlugin, ToonSpecular,
+};
 
 fn main() {
     let mut app = App::new();
@@ -24,7 +26,11 @@ fn setup(
     mut standard_materials: ResMut<Assets<StandardMaterial>>,
     mut toon_materials: ResMut<Assets<ToonMaterial>>,
 ) {
-    common::spawn_camera(&mut commands, Vec3::new(0.0, 4.8, 14.5), Vec3::new(0.0, 1.2, -0.6));
+    common::spawn_camera(
+        &mut commands,
+        Vec3::new(0.0, 4.8, 14.5),
+        Vec3::new(0.0, 1.2, -0.6),
+    );
     common::spawn_lighting(&mut commands);
     common::spawn_ground(
         &mut commands,

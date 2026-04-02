@@ -33,10 +33,9 @@ pub(crate) fn replace_direct_materials(
             continue;
         };
         let toon_handle = toon_materials.add(build_toon_material(base_material, extension));
-        commands.entity(entity).insert((
-            MeshMaterial3d(toon_handle),
-            ToonManagedMaterial::direct(),
-        ));
+        commands
+            .entity(entity)
+            .insert((MeshMaterial3d(toon_handle), ToonManagedMaterial::direct()));
         commands
             .entity(entity)
             .remove::<MeshMaterial3d<StandardMaterial>>();
@@ -86,13 +85,14 @@ pub(crate) fn replace_scene_materials(
 
             let toon_handle = converted
                 .entry(standard_handle.id())
-                .or_insert_with(|| toon_materials.add(build_toon_material(base_material, extension)))
+                .or_insert_with(|| {
+                    toon_materials.add(build_toon_material(base_material, extension))
+                })
                 .clone();
 
-            commands.entity(entity).insert((
-                MeshMaterial3d(toon_handle),
-                ToonManagedMaterial::scene(),
-            ));
+            commands
+                .entity(entity)
+                .insert((MeshMaterial3d(toon_handle), ToonManagedMaterial::scene()));
             commands
                 .entity(entity)
                 .remove::<MeshMaterial3d<StandardMaterial>>();
@@ -101,9 +101,7 @@ pub(crate) fn replace_scene_materials(
         // Once descendants exist and every root-managed StandardMaterial has been
         // resolved, mark the root as complete so later frames stop rescanning it.
         if saw_descendants && !unresolved_material {
-            commands
-                .entity(root)
-                .insert(ToonSceneReplacementComplete);
+            commands.entity(root).insert(ToonSceneReplacementComplete);
         }
     }
 }

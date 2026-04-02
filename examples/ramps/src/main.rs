@@ -7,7 +7,10 @@ use saddle_rendering_toon_shader::{ToonExtension, ToonMaterial, ToonShaderPlugin
 fn main() {
     let mut app = App::new();
     app.insert_resource(ClearColor(Color::srgb(0.05, 0.055, 0.07)))
-        .add_plugins((common::default_plugins("Toon Shader - Ramps"), ToonShaderPlugin::default()))
+        .add_plugins((
+            common::default_plugins("Toon Shader - Ramps"),
+            ToonShaderPlugin::default(),
+        ))
         .add_systems(Startup, setup)
         .add_systems(Update, common::spin);
     common::install_auto_exit(&mut app);
@@ -21,7 +24,11 @@ fn setup(
     mut standard_materials: ResMut<Assets<StandardMaterial>>,
     mut toon_materials: ResMut<Assets<ToonMaterial>>,
 ) {
-    common::spawn_camera(&mut commands, Vec3::new(0.0, 5.0, 14.0), Vec3::new(0.0, 1.2, 0.0));
+    common::spawn_camera(
+        &mut commands,
+        Vec3::new(0.0, 5.0, 14.0),
+        Vec3::new(0.0, 1.2, 0.0),
+    );
     common::spawn_lighting(&mut commands);
     common::spawn_ground(
         &mut commands,
@@ -75,13 +82,15 @@ fn setup(
         commands.spawn((
             Name::new(format!("Ramp Demo {}", index + 1)),
             Mesh3d(meshes.add(Sphere::new(1.2).mesh().uv(32, 18))),
-            MeshMaterial3d(toon_materials.add(
-                ToonExtension::default().with_ramp_texture(ramp).material(StandardMaterial {
-                    base_color: color,
-                    perceptual_roughness: 0.42,
-                    ..default()
-                }),
-            )),
+            MeshMaterial3d(
+                toon_materials.add(ToonExtension::default().with_ramp_texture(ramp).material(
+                    StandardMaterial {
+                        base_color: color,
+                        perceptual_roughness: 0.42,
+                        ..default()
+                    },
+                )),
+            ),
             Transform::from_xyz(x, 1.25, 0.0),
             DemoSpin {
                 axis: Vec3::new(0.1, 1.0, 0.0),
