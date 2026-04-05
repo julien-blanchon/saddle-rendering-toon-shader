@@ -188,7 +188,7 @@ pub struct ToonExtension {
 
 impl ToonExtension {
     pub const MIN_BANDS: u32 = 2;
-    pub const MAX_BANDS: u32 = 5;
+    pub const MAX_BANDS: u32 = 8;
 
     pub fn banded(band_count: u32) -> Self {
         Self::default().with_band_count(band_count)
@@ -239,6 +239,46 @@ impl ToonExtension {
                     .with_threshold(0.5)
                     .with_softness(0.16),
             )
+    }
+
+    /// Wind Waker style: 2-band cel shading with a slight gradient edge,
+    /// warm shadow tint, and a subtle rim highlight.
+    pub fn wind_waker() -> Self {
+        Self::banded(2)
+            .with_band_softness(0.06)
+            .with_shadow_floor(0.22)
+            .with_shadow_tint(Color::srgb(0.45, 0.38, 0.55))
+            .with_light_wrap(0.04)
+            .with_specular(ToonSpecular::default().with_intensity(0.0))
+            .with_rim(
+                ToonRim::new(Color::srgb(1.0, 0.96, 0.88))
+                    .with_intensity(0.2)
+                    .with_threshold(0.6)
+                    .with_softness(0.15),
+            )
+    }
+
+    /// Borderlands style: high-contrast cel shading with hard band edges,
+    /// deep shadows, and no specular or rim (outlines are handled externally).
+    pub fn borderlands() -> Self {
+        Self::banded(3)
+            .with_band_softness(0.0)
+            .with_shadow_floor(0.05)
+            .with_shadow_tint(Color::srgb(0.12, 0.1, 0.14))
+            .with_light_wrap(-0.05)
+            .with_specular(ToonSpecular::default().with_intensity(0.0))
+            .with_rim(ToonRim::default().with_intensity(0.0))
+    }
+
+    /// Flat cel shading: completely hard 2-band split, no smoothing.
+    /// The simplest possible toon look.
+    pub fn flat_cel() -> Self {
+        Self::banded(2)
+            .with_band_softness(0.0)
+            .with_shadow_floor(0.08)
+            .with_shadow_tint(Color::srgb(0.3, 0.28, 0.36))
+            .with_specular(ToonSpecular::default().with_intensity(0.0))
+            .with_rim(ToonRim::default().with_intensity(0.0))
     }
 
     pub fn with_band_count(mut self, band_count: u32) -> Self {

@@ -5,7 +5,7 @@
 | Field | Type | Default | Expected Range | Effect | Notes |
 |------|------|---------|----------------|--------|-------|
 | `diffuse_mode` | `ToonDiffuseMode` | `Bands` | `Bands` or `RampTexture` | Chooses stepped math bands or ramp texture sampling | `RampTexture` falls back to `Bands` if no texture handle is present |
-| `band_count` | `u32` | `2` | `2..=5` | Number of diffuse light bands in `Bands` mode | Values outside range are clamped in the GPU uniform conversion |
+| `band_count` | `u32` | `2` | `2..=8` | Number of diffuse light bands in `Bands` mode | Values outside range are clamped in the GPU uniform conversion |
 | `band_softness` | `f32` | `0.12` | `0.0..=1.0` | Smooths transitions between bands | `0.0` is hard cel shading; larger values soften the contour |
 | `shadow_floor` | `f32` | `0.16` | `0.0..=1.0` | Lifts shadowed regions toward the lit band | Good for readability at distance or in low-ambient scenes |
 | `shadow_tint` | `Color` | `srgb(0.22, 0.24, 0.30)` | artistic | Tints the darkest diffuse band | Neutral dark blue-grey works well as a reusable default |
@@ -41,6 +41,9 @@
 | `ToonExtension::anime_character()` | Characters with strong readability | 2 bands, stronger specular, lit-side rim |
 | `ToonExtension::low_poly_prop()` | Props and diorama pieces | 4 bands, softened transitions, minimal specular |
 | `ToonExtension::glossy_vehicle()` | Vehicles or shiny hard-surface assets | strong specular band, stronger wrap, subtle rim |
+| `ToonExtension::wind_waker()` | Wind Waker / Ghibli soft pastel look | 2 bands, very soft edges, subtle warm rim, no specular |
+| `ToonExtension::borderlands()` | Hard ink-shaded comic look | 3 bands, zero softness, very dark shadows, no rim/specular |
+| `ToonExtension::flat_cel()` | Flat minimal cel shading | 2 bands, zero softness, deep shadows, no rim/specular |
 
 ## Performance Notes
 

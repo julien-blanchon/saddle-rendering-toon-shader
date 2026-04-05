@@ -24,6 +24,21 @@ fn preset_builders_enable_expected_features() {
     let vehicle = ToonExtension::glossy_vehicle();
     assert!(vehicle.specular.is_enabled());
     assert!(vehicle.rim.is_enabled());
+
+    let ww = ToonExtension::wind_waker();
+    assert_eq!(ww.band_count, 2);
+    assert!(!ww.specular.is_enabled());
+    assert!(ww.rim.is_enabled());
+
+    let bl = ToonExtension::borderlands();
+    assert_eq!(bl.band_count, 3);
+    assert_eq!(bl.band_softness, 0.0);
+    assert!(!bl.specular.is_enabled());
+    assert!(!bl.rim.is_enabled());
+
+    let flat = ToonExtension::flat_cel();
+    assert_eq!(flat.band_count, 2);
+    assert_eq!(flat.band_softness, 0.0);
 }
 
 #[test]
@@ -46,7 +61,7 @@ fn sanitized_uniform_clamps_invalid_numeric_ranges() {
     };
 
     let uniform = extension.sanitized_uniform();
-    assert_eq!(uniform.band_count, ToonExtension::MAX_BANDS);
+    assert_eq!(uniform.band_count, 8); // MAX_BANDS
     assert_eq!(uniform.band_softness, 0.0);
     assert_eq!(uniform.shadow_floor, 1.0);
     assert_eq!(uniform.light_wrap, -0.5);

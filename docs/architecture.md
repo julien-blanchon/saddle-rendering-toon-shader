@@ -78,12 +78,4 @@ The diagnostics resource exists for BRP inspection, overlay text in the lab, and
 
 ## Outline Scope Decision
 
-Outline support is intentionally not part of the runtime crate.
-
-Reasons:
-
-- thick outlines need different tradeoffs than shaded-band materials
-- screen-space and inverted-hull outlines deserve their own performance and topology rules
-- this workspace already has a dedicated `saddle-rendering-outline` shared crate
-
-`saddle-rendering-toon-shader` therefore keeps outline coverage as an example-only integration path in `outline_optional.rs`.
+Outline support is intentionally not part of this crate. Thick outlines need different tradeoffs than shaded-band materials, and screen-space and inverted-hull outlines deserve their own performance and topology rules.

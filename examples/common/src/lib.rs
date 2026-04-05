@@ -7,12 +7,41 @@ use bevy::prelude::*;
 use bevy::render::render_resource::{Extent3d, TextureDimension, TextureFormat};
 use bevy::winit::WinitSettings;
 
+pub use saddle_pane;
+pub use saddle_pane::prelude::*;
+
+/// Returns all plugins required for saddle-pane to work.
+/// Usage: `app.add_plugins(common::pane_plugins())`
+pub fn pane_plugins() -> (
+    bevy_flair::FlairPlugin,
+    bevy_input_focus::InputDispatchPlugin,
+    bevy_ui_widgets::UiWidgetsPlugins,
+    bevy_input_focus::tab_navigation::TabNavigationPlugin,
+    saddle_pane::PanePlugin,
+) {
+    (
+        bevy_flair::FlairPlugin,
+        bevy_input_focus::InputDispatchPlugin,
+        bevy_ui_widgets::UiWidgetsPlugins,
+        bevy_input_focus::tab_navigation::TabNavigationPlugin,
+        saddle_pane::PanePlugin,
+    )
+}
+
 pub const AUTO_EXIT_ENV: &str = "TOON_SHADER_AUTO_EXIT_SECONDS";
 
 #[derive(Component)]
 pub struct DemoSpin {
     pub axis: Vec3,
     pub speed: f32,
+}
+
+#[derive(Component)]
+pub struct OrbitCamera {
+    pub center: Vec3,
+    pub radius: f32,
+    pub speed: f32,
+    pub height: f32,
 }
 
 #[derive(Resource)]
@@ -51,6 +80,19 @@ pub fn spin(time: Res<Time>, mut spinning: Query<(&DemoSpin, &mut Transform)>) {
             spin.axis.normalize_or_zero(),
             spin.speed * time.delta_secs(),
         ));
+    }
+}
+
+pub fn orbit_camera(time: Res<Time>, mut cameras: Query<(&OrbitCamera, &mut Transform)>) {
+    for (orbit, mut transform) in &mut cameras {
+        let angle = time.elapsed_secs() * orbit.speed;
+        let pos = orbit.center
+            + Vec3::new(
+                angle.cos() * orbit.radius,
+                orbit.height,
+                angle.sin() * orbit.radius,
+            );
+        *transform = Transform::from_translation(pos).looking_at(orbit.center, Vec3::Y);
     }
 }
 
@@ -115,6 +157,132 @@ pub fn spawn_ground(
                 ..default()
             })),
             Transform::from_xyz(0.0, 0.0, 0.0),
+        ))
+        .id()
+}
+
+/// Spawn a rich scene with multiple primitive objects arranged attractively.
+/// Returns the entity IDs of all spawned meshes.
+pub fn spawn_showcase_scene(
+    commands: &mut Commands,
+    meshes: &mut Assets<Mesh>,
+    materials: &mut Assets<StandardMaterial>,
+) -> Vec<Entity> {
+    vec![
+        // Central sphere
+        commands
+            .spawn((
+                Name::new("Central Sphere"),
+                Mesh3d(meshes.add(Sphere::new(1.2).mesh().uv(48, 24))),
+                MeshMaterial3d(materials.add(StandardMaterial {
+                    base_color: Color::srgb(0.92, 0.78, 0.65),
+                    perceptual_roughness: 0.35,
+                    ..default()
+                })),
+                Transform::from_xyz(0.0, 1.3, 0.0),
+                DemoSpin {
+                    axis: Vec3::new(0.0, 1.0, 0.15),
+                    speed: 0.3,
+                },
+            ))
+            .id(),
+        // Torus on the left
+        commands
+            .spawn((
+                Name::new("Left Torus"),
+                Mesh3d(meshes.add(Torus::new(0.85, 0.3))),
+                MeshMaterial3d(materials.add(StandardMaterial {
+                    base_color: Color::srgb(0.85, 0.28, 0.22),
+                    perceptual_roughness: 0.25,
+                    metallic: 0.02,
+                    ..default()
+                })),
+                Transform::from_xyz(-3.2, 1.2, -0.4).with_rotation(Quat::from_rotation_x(0.8)),
+                DemoSpin {
+                    axis: Vec3::new(0.2, 1.0, 0.1),
+                    speed: 0.45,
+                },
+            ))
+            .id(),
+        // Cube on the right
+        commands
+            .spawn((
+                Name::new("Right Cube"),
+                Mesh3d(meshes.add(Cuboid::new(1.4, 1.4, 1.4))),
+                MeshMaterial3d(materials.add(StandardMaterial {
+                    base_color: Color::srgb(0.38, 0.62, 0.82),
+                    perceptual_roughness: 0.45,
+                    ..default()
+                })),
+                Transform::from_xyz(3.2, 0.85, -0.2).with_rotation(Quat::from_euler(
+                    EulerRot::XYZ,
+                    0.3,
+                    0.6,
+                    0.15,
+                )),
+                DemoSpin {
+                    axis: Vec3::new(0.1, 1.0, 0.2),
+                    speed: 0.25,
+                },
+            ))
+            .id(),
+        // Capsule behind
+        commands
+            .spawn((
+                Name::new("Back Capsule"),
+                Mesh3d(meshes.add(Capsule3d::new(0.5, 1.6))),
+                MeshMaterial3d(materials.add(StandardMaterial {
+                    base_color: Color::srgb(0.72, 0.82, 0.48),
+                    perceptual_roughness: 0.55,
+                    ..default()
+                })),
+                Transform::from_xyz(1.0, 1.35, -3.0).with_rotation(Quat::from_rotation_z(0.25)),
+                DemoSpin {
+                    axis: Vec3::Y,
+                    speed: 0.35,
+                },
+            ))
+            .id(),
+        // Cylinder on the far left
+        commands
+            .spawn((
+                Name::new("Left Cylinder"),
+                Mesh3d(meshes.add(Cylinder::new(0.6, 2.0))),
+                MeshMaterial3d(materials.add(StandardMaterial {
+                    base_color: Color::srgb(0.88, 0.68, 0.42),
+                    perceptual_roughness: 0.6,
+                    ..default()
+                })),
+                Transform::from_xyz(-1.8, 1.0, -2.5),
+                DemoSpin {
+                    axis: Vec3::Y,
+                    speed: 0.2,
+                },
+            ))
+            .id(),
+    ]
+}
+
+/// Spawn on-screen instructions text in the bottom-left corner.
+pub fn spawn_instructions(commands: &mut Commands, text: &str) -> Entity {
+    commands
+        .spawn((
+            Name::new("Instructions Overlay"),
+            Node {
+                position_type: PositionType::Absolute,
+                left: px(16.0),
+                bottom: px(16.0),
+                max_width: px(420.0),
+                padding: UiRect::all(px(10.0)),
+                ..default()
+            },
+            BackgroundColor(Color::srgba(0.0, 0.0, 0.0, 0.65)),
+            Text::new(text.to_owned()),
+            TextFont {
+                font_size: 14.0,
+                ..default()
+            },
+            TextColor(Color::srgba(1.0, 1.0, 1.0, 0.9)),
         ))
         .id()
 }
@@ -209,14 +377,12 @@ fn blank_image(width: u32, height: u32, format: TextureFormat) -> Image {
 
 fn asset_root() -> PathBuf {
     let manifest_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
-    if manifest_dir.ends_with("lab") {
-        manifest_dir
-            .parent()
-            .expect("lab crate should sit under examples/")
-            .join("assets")
-    } else {
-        manifest_dir.join("examples").join("assets")
-    }
+    // All example crates sit under examples/<name>/ (or examples/lab/).
+    // The shared assets live at examples/assets/.
+    manifest_dir
+        .parent()
+        .expect("example crate should sit under examples/")
+        .join("assets")
 }
 
 fn auto_exit_seconds() -> Option<f32> {

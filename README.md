@@ -97,13 +97,15 @@ Attach `ToonExtension` directly to a mesh entity with `MeshMaterial3d<StandardMa
 
 ## Examples
 
+All examples use `saddle-pane` for live parameter editing and include on-screen instructions.
+
 | Example | Purpose | Run |
 |---------|---------|-----|
-| `basic` | Minimal direct `ToonMaterial` workflow on one sphere | `cargo run -p saddle-rendering-toon-shader-example-basic` |
-| `ramps` | Compare discrete banding with authored ramp textures | `cargo run -p saddle-rendering-toon-shader-example-ramps` |
-| `rim_specular` | Side-by-side specular and rim tuning on different materials | `cargo run -p saddle-rendering-toon-shader-example-rim-specular` |
-| `gltf_replace` | Replace imported scene materials by attaching `ToonExtension` to a `SceneRoot` | `cargo run -p saddle-rendering-toon-shader-example-gltf-replace` |
-| `outline_optional` | Example-only composition with the dedicated `saddle-rendering-outline` crate | `cargo run -p saddle-rendering-toon-shader-example-outline-optional` |
+| `basic` | Side-by-side PBR vs Toon comparison with live band/shadow/rim controls | `cargo run -p saddle-rendering-toon-shader-example-basic` |
+| `ramps` | Compare discrete banding with artist-authored ramp textures | `cargo run -p saddle-rendering-toon-shader-example-ramps` |
+| `rim_specular` | Three spheres with different rim/specular styles and 6 live sliders | `cargo run -p saddle-rendering-toon-shader-example-rim-specular` |
+| `gltf_replace` | Side-by-side original PBR vs toon-shaded FlightHelmet glTF scene | `cargo run -p saddle-rendering-toon-shader-example-gltf-replace` |
+| `showcase` | Cycle through all 6 built-in presets applied to 5 different shapes | `cargo run -p saddle-rendering-toon-shader-example-showcase` |
 
 Timed auto-exit is available for batch verification:
 
@@ -112,7 +114,7 @@ TOON_SHADER_AUTO_EXIT_SECONDS=2 cargo run -p saddle-rendering-toon-shader-exampl
 TOON_SHADER_AUTO_EXIT_SECONDS=2 cargo run -p saddle-rendering-toon-shader-example-ramps
 TOON_SHADER_AUTO_EXIT_SECONDS=2 cargo run -p saddle-rendering-toon-shader-example-rim-specular
 TOON_SHADER_AUTO_EXIT_SECONDS=2 cargo run -p saddle-rendering-toon-shader-example-gltf-replace
-TOON_SHADER_AUTO_EXIT_SECONDS=2 cargo run -p saddle-rendering-toon-shader-example-outline-optional
+TOON_SHADER_AUTO_EXIT_SECONDS=2 cargo run -p saddle-rendering-toon-shader-example-showcase
 ```
 
 ## Crate-Local Lab
@@ -152,7 +154,7 @@ BRP_PORT=15744 uv run --active --project .codex/skills/bevy-brp/script brp \
 - The full toon look is a forward-rendering feature. Deferred prepass rendering compiles and still shows the base PBR material, but it cannot apply the stepped lighting bands.
 - Ramp textures should be authored with a predictable sampler setup. The examples generate ramps in code and use nearest sampling to keep transitions crisp.
 - Alpha-clipped and transparent materials work through `StandardMaterial`, but every project should validate foliage, hair cards, and transmissive surfaces with its own art assets.
-- The included outline coverage is example-only. Thick production outlines remain a separate problem and are better handled by a dedicated crate such as the existing `saddle-rendering-outline` shared module.
+- The crate does not include outline rendering. Thick outlines need different tradeoffs (screen-space vs inverted-hull) and should be handled separately.
 - The crate-local lab now uses a textured `FlightHelmet` glTF and completion-aware scene replacement assertions, but the direct-mesh showcase still depends heavily on light direction and should be treated as a qualitative check rather than a golden snapshot.
 
 More detail lives in [architecture.md](docs/architecture.md) and [configuration.md](docs/configuration.md).

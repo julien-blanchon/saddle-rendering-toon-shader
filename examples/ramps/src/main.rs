@@ -1,3 +1,7 @@
+//! Ramp texture showcase — compare discrete band shading with artist-authored
+//! ramp textures. Each column uses a different ramp, demonstrating warm, cool,
+//! and stylized color palettes.
+
 use saddle_rendering_toon_shader_example_common as common;
 
 use bevy::prelude::*;
@@ -6,9 +10,9 @@ use saddle_rendering_toon_shader::{ToonExtension, ToonMaterial, ToonShaderPlugin
 
 fn main() {
     let mut app = App::new();
-    app.insert_resource(ClearColor(Color::srgb(0.05, 0.055, 0.07)))
+    app.insert_resource(ClearColor(Color::srgb(0.42, 0.48, 0.56)))
         .add_plugins((
-            common::default_plugins("Toon Shader - Ramps"),
+            common::default_plugins("Toon Shader — Ramp Textures"),
             ToonShaderPlugin::default(),
         ))
         .add_systems(Startup, setup)
@@ -35,6 +39,11 @@ fn setup(
         &mut meshes,
         &mut standard_materials,
         &mut images,
+    );
+
+    common::spawn_instructions(
+        &mut commands,
+        "Ramp Textures vs Discrete Bands\nTop row: ramp textures | Bottom row: 4-band discrete\nSame base colors, different shading styles",
     );
 
     let neutral_ramp = common::ramp_texture(
@@ -65,36 +74,60 @@ fn setup(
         ],
     );
 
-    let positions = [-4.2, 0.0, 4.2];
+    let x_positions = [-4.2, 0.0, 4.2];
     let ramps = [neutral_ramp, warm_ramp, pop_ramp];
+    let labels = ["Neutral Ramp", "Warm Ramp", "Pop Ramp"];
     let colors = [
         Color::srgb(0.88, 0.82, 0.74),
         Color::srgb(0.76, 0.86, 0.96),
         Color::srgb(0.92, 0.78, 0.7),
     ];
 
-    for (index, ((x, ramp), color)) in positions
+    for (i, ((x, ramp), color)) in x_positions
         .into_iter()
         .zip(ramps.into_iter())
         .zip(colors.into_iter())
         .enumerate()
     {
+        let base_mat = StandardMaterial {
+            base_color: color,
+            perceptual_roughness: 0.42,
+            ..default()
+        };
+
+        // Top row: ramp texture version
         commands.spawn((
-            Name::new(format!("Ramp Demo {}", index + 1)),
-            Mesh3d(meshes.add(Sphere::new(1.2).mesh().uv(32, 18))),
+            Name::new(format!("{} Sphere", labels[i])),
+            Mesh3d(meshes.add(Sphere::new(1.1).mesh().uv(48, 24))),
             MeshMaterial3d(
-                toon_materials.add(ToonExtension::default().with_ramp_texture(ramp).material(
-                    StandardMaterial {
-                        base_color: color,
-                        perceptual_roughness: 0.42,
-                        ..default()
-                    },
-                )),
+                toon_materials.add(
+                    ToonExtension::default()
+                        .with_ramp_texture(ramp)
+                        .material(base_mat.clone()),
+                ),
             ),
-            Transform::from_xyz(x, 1.25, 0.0),
+            Transform::from_xyz(x, 2.6, -1.5),
             DemoSpin {
                 axis: Vec3::new(0.1, 1.0, 0.0),
-                speed: 0.32 + index as f32 * 0.06,
+                speed: 0.32 + i as f32 * 0.06,
+            },
+        ));
+
+        // Bottom row: discrete band version (same color)
+        commands.spawn((
+            Name::new(format!("{} Banded Sphere", labels[i])),
+            Mesh3d(meshes.add(Sphere::new(1.1).mesh().uv(48, 24))),
+            MeshMaterial3d(
+                toon_materials.add(
+                    ToonExtension::banded(4)
+                        .with_band_softness(0.08)
+                        .material(base_mat),
+                ),
+            ),
+            Transform::from_xyz(x, 1.15, 1.5),
+            DemoSpin {
+                axis: Vec3::new(0.1, 1.0, 0.0),
+                speed: 0.32 + i as f32 * 0.06,
             },
         ));
     }
