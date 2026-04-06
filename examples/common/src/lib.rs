@@ -1,14 +1,13 @@
 use std::path::PathBuf;
 
-use bevy::app::AppExit;
 use bevy::asset::{AssetPlugin, RenderAssetUsages};
 use bevy::image::{ImageAddressMode, ImageFilterMode, ImageSampler, ImageSamplerDescriptor};
 use bevy::prelude::*;
 use bevy::render::render_resource::{Extent3d, TextureDimension, TextureFormat};
-use bevy::winit::WinitSettings;
 
 pub use saddle_pane;
 pub use saddle_pane::prelude::*;
+pub mod sample_looks;
 
 /// Returns all plugins required for saddle-pane to work.
 /// Usage: `app.add_plugins(common::pane_plugins())`
@@ -28,8 +27,6 @@ pub fn pane_plugins() -> (
     )
 }
 
-pub const AUTO_EXIT_ENV: &str = "TOON_SHADER_AUTO_EXIT_SECONDS";
-
 #[derive(Component)]
 pub struct DemoSpin {
     pub axis: Vec3,
@@ -43,9 +40,6 @@ pub struct OrbitCamera {
     pub speed: f32,
     pub height: f32,
 }
-
-#[derive(Resource)]
-struct AutoExitAfter(Timer);
 
 pub fn default_plugins(title: &str) -> bevy::app::PluginGroupBuilder {
     DefaultPlugins
@@ -61,17 +55,6 @@ pub fn default_plugins(title: &str) -> bevy::app::PluginGroupBuilder {
             }),
             ..default()
         })
-}
-
-pub fn install_auto_exit(app: &mut App) {
-    if let Some(duration) = auto_exit_seconds() {
-        app.insert_resource(WinitSettings::continuous());
-        app.insert_resource(AutoExitAfter(Timer::from_seconds(
-            duration,
-            TimerMode::Once,
-        )));
-        app.add_systems(Update, auto_exit_after);
-    }
 }
 
 pub fn spin(time: Res<Time>, mut spinning: Query<(&DemoSpin, &mut Transform)>) {
@@ -383,21 +366,4 @@ fn asset_root() -> PathBuf {
         .parent()
         .expect("example crate should sit under examples/")
         .join("assets")
-}
-
-fn auto_exit_seconds() -> Option<f32> {
-    std::env::var(AUTO_EXIT_ENV)
-        .ok()
-        .and_then(|value| value.parse::<f32>().ok())
-        .filter(|seconds| *seconds > 0.0)
-}
-
-fn auto_exit_after(
-    time: Res<Time>,
-    mut timer: ResMut<AutoExitAfter>,
-    mut exit: MessageWriter<AppExit>,
-) {
-    if timer.0.tick(time.delta()).just_finished() {
-        exit.write(AppExit::Success);
-    }
 }

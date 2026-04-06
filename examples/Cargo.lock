@@ -4966,6 +4966,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "saddle-rendering-outline"
+version = "0.1.0"
+source = "git+https://github.com/julien-blanchon/saddle-rendering-outline#91bbb9241c0d84ced93a94f90309fdd0733f02ed"
+dependencies = [
+ "bevy",
+]
+
+[[package]]
 name = "saddle-rendering-toon-shader"
 version = "0.1.0"
 dependencies = [
@@ -4998,6 +5006,16 @@ name = "saddle-rendering-toon-shader-example-gltf-replace"
 version = "0.1.0"
 dependencies = [
  "bevy",
+ "saddle-rendering-toon-shader",
+ "saddle-rendering-toon-shader-example-common",
+]
+
+[[package]]
+name = "saddle-rendering-toon-shader-example-outline-optional"
+version = "0.1.0"
+dependencies = [
+ "bevy",
+ "saddle-rendering-outline",
  "saddle-rendering-toon-shader",
  "saddle-rendering-toon-shader-example-common",
 ]

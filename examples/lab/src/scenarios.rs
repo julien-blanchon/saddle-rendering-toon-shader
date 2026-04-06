@@ -1,5 +1,7 @@
 use std::collections::HashSet;
 
+use saddle_rendering_toon_shader_example_common as common;
+
 use bevy::asset::AssetId;
 use bevy::light::DirectionalLight;
 use bevy::pbr::MeshMaterial3d;
@@ -9,9 +11,7 @@ use saddle_bevy_e2e::{
     actions::{assertions, inspect},
     scenario::Scenario,
 };
-use saddle_rendering_toon_shader::{
-    ToonExtension, ToonMaterial, ToonRim, ToonShaderDiagnostics, ToonSpecular,
-};
+use saddle_rendering_toon_shader::{ToonMaterial, ToonRim, ToonShaderDiagnostics, ToonSpecular};
 
 use crate::{
     GLOSSY_STAGE_POS, HERO_STAGE_POS, LabAssets, LabEntities, LabSunRig, NORMAL_STAGE_POS,
@@ -106,7 +106,7 @@ fn build_gltf_replace() -> Scenario {
             let lab = *world.resource::<LabEntities>();
             let ramps = world.resource::<LabAssets>().clone();
             world.entity_mut(lab.toon_scene_root).insert(
-                ToonExtension::anime_character().with_ramp_texture(ramps.pop_ramp.clone()),
+                common::sample_looks::anime_character().with_ramp_texture(ramps.pop_ramp.clone()),
             );
         })))
         .then(Action::Custom(Box::new(|world: &mut World| {
@@ -278,7 +278,7 @@ fn configure_rim_specular_showcase(world: &mut World) {
     world.resource_mut::<ClearColor>().0 = Color::srgb(0.56, 0.62, 0.72);
 
     world.entity_mut(lab.hero).insert(
-        ToonExtension::anime_character()
+        common::sample_looks::anime_character()
             .with_shadow_floor(0.9)
             .with_shadow_tint(Color::srgb(0.56, 0.6, 0.68))
             .with_light_wrap(0.24)
@@ -297,13 +297,13 @@ fn configure_rim_specular_showcase(world: &mut World) {
     );
 
     world.entity_mut(lab.glossy).insert(
-        ToonExtension::glossy_vehicle()
+        common::sample_looks::glossy_vehicle()
             .with_shadow_floor(0.7)
             .with_shadow_tint(Color::srgb(0.42, 0.34, 0.3)),
     );
 
     world.entity_mut(lab.normal_mapped).insert(
-        ToonExtension::low_poly_prop()
+        common::sample_looks::low_poly_prop()
             .with_shadow_floor(0.8)
             .with_shadow_tint(Color::srgb(0.5, 0.58, 0.66))
             .with_light_wrap(0.18),
@@ -352,18 +352,18 @@ fn configure_direct_showcase(world: &mut World) {
     }
 
     world.entity_mut(lab.hero).insert(
-        ToonExtension::anime_character()
+        common::sample_looks::anime_character()
             .with_shadow_floor(0.86)
             .with_shadow_tint(Color::srgb(0.54, 0.56, 0.62)),
     );
     world.entity_mut(lab.glossy).insert(
-        ToonExtension::glossy_vehicle()
+        common::sample_looks::glossy_vehicle()
             .with_light_wrap(0.14)
             .with_shadow_floor(0.68)
             .with_shadow_tint(Color::srgb(0.44, 0.34, 0.3)),
     );
     world.entity_mut(lab.normal_mapped).insert(
-        ToonExtension::low_poly_prop()
+        common::sample_looks::low_poly_prop()
             .with_shadow_floor(0.82)
             .with_shadow_tint(Color::srgb(0.46, 0.54, 0.62))
             .with_band_softness(0.24),

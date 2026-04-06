@@ -12,33 +12,27 @@ fn default_extension_uses_two_band_mode_without_ramp() {
 }
 
 #[test]
-fn preset_builders_enable_expected_features() {
-    let anime = ToonExtension::anime_character();
-    assert!(anime.specular.is_enabled());
-    assert!(anime.rim.is_enabled());
+fn low_level_builders_cover_common_tuning_paths() {
+    let ramped = ToonExtension::ramped(Handle::<Image>::default());
+    assert_eq!(ramped.diffuse_mode, ToonDiffuseMode::RampTexture);
+    assert!(ramped.uses_ramp_texture());
 
-    let prop = ToonExtension::low_poly_prop();
-    assert!(!prop.specular.is_enabled());
-    assert!(prop.band_count >= 3);
+    let banded = ToonExtension::default()
+        .with_band_profile(4, 0.18)
+        .with_shadow_response(0.24, Color::srgb(0.26, 0.3, 0.38))
+        .without_specular()
+        .with_rim(ToonRim::default().with_intensity(0.06));
+    assert_eq!(banded.band_count, 4);
+    assert_eq!(banded.band_softness, 0.18);
+    assert_eq!(banded.shadow_floor, 0.24);
+    assert!(!banded.specular.is_enabled());
+    assert!(banded.rim.is_enabled());
 
-    let vehicle = ToonExtension::glossy_vehicle();
-    assert!(vehicle.specular.is_enabled());
-    assert!(vehicle.rim.is_enabled());
-
-    let ww = ToonExtension::wind_waker();
-    assert_eq!(ww.band_count, 2);
-    assert!(!ww.specular.is_enabled());
-    assert!(ww.rim.is_enabled());
-
-    let bl = ToonExtension::borderlands();
-    assert_eq!(bl.band_count, 3);
-    assert_eq!(bl.band_softness, 0.0);
-    assert!(!bl.specular.is_enabled());
-    assert!(!bl.rim.is_enabled());
-
-    let flat = ToonExtension::flat_cel();
-    assert_eq!(flat.band_count, 2);
-    assert_eq!(flat.band_softness, 0.0);
+    let hard_edge = ToonExtension::banded(2)
+        .with_band_profile(2, 0.0)
+        .without_rim();
+    assert_eq!(hard_edge.band_softness, 0.0);
+    assert!(!hard_edge.rim.is_enabled());
 }
 
 #[test]
@@ -86,10 +80,40 @@ fn ramp_mode_without_texture_falls_back_to_band_mode_in_uniform() {
 }
 
 #[test]
-fn material_helper_forces_forward_rendering() {
-    let material = ToonExtension::default().material(StandardMaterial::default());
-    assert_eq!(
-        material.base.opaque_render_method,
-        bevy::pbr::OpaqueRendererMethod::Forward
-    );
+fn disabled_feature_helpers_clear_their_respective_channels() {
+    assert!(!ToonSpecular::disabled().is_enabled());
+    assert!(!ToonRim::disabled().is_enabled());
+}
+
+#[test]
+fn material_helper_preserves_base_rendering_method() {
+    for render_method in [
+        bevy::pbr::OpaqueRendererMethod::Auto,
+        bevy::pbr::OpaqueRendererMethod::Forward,
+        bevy::pbr::OpaqueRendererMethod::Deferred,
+    ] {
+        let material = ToonExtension::default().material(StandardMaterial {
+            opaque_render_method: render_method,
+            ..default()
+        });
+        assert_eq!(material.base.opaque_render_method, render_method);
+    }
+}
+
+#[test]
+fn cloned_material_keeps_original_rendering_method() {
+    for render_method in [
+        bevy::pbr::OpaqueRendererMethod::Auto,
+        bevy::pbr::OpaqueRendererMethod::Forward,
+        bevy::pbr::OpaqueRendererMethod::Deferred,
+    ] {
+        let material = build_toon_material(
+            &StandardMaterial {
+                opaque_render_method: render_method,
+                ..default()
+            },
+            &ToonExtension::default(),
+        );
+        assert_eq!(material.base.opaque_render_method, render_method);
+    }
 }

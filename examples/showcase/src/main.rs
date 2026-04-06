@@ -1,24 +1,15 @@
-//! Preset showcase — displays each built-in toon preset applied to the same
-//! set of objects. Demonstrates the range of looks achievable without writing
-//! any custom code.
+//! Preset showcase — displays each example-only toon look applied to the same
+//! set of objects. Demonstrates the range of looks achievable from the neutral
+//! builders without shipping style presets in the core crate.
 
 use saddle_rendering_toon_shader_example_common as common;
 
 use bevy::prelude::*;
 use common::DemoSpin;
 use common::saddle_pane::prelude::*;
-use saddle_rendering_toon_shader::{ToonExtension, ToonMaterial, ToonShaderPlugin};
+use saddle_rendering_toon_shader::{ToonMaterial, ToonShaderPlugin};
 
 const PANE_TITLE: &str = "Presets";
-
-const PRESET_NAMES: &[&str] = &[
-    "Anime Character",
-    "Low Poly Prop",
-    "Glossy Vehicle",
-    "Wind Waker",
-    "Borderlands",
-    "Flat Cel",
-];
 
 fn main() {
     let mut app = App::new();
@@ -30,7 +21,6 @@ fn main() {
         .add_plugins(common::pane_plugins())
         .add_systems(Startup, setup)
         .add_systems(Update, (common::spin, cycle_presets));
-    common::install_auto_exit(&mut app);
     app.run();
 }
 
@@ -42,18 +32,6 @@ struct PresetLabel;
 
 #[derive(Resource)]
 struct CurrentPreset(usize);
-
-fn preset_for(index: usize) -> ToonExtension {
-    match index {
-        0 => ToonExtension::anime_character(),
-        1 => ToonExtension::low_poly_prop(),
-        2 => ToonExtension::glossy_vehicle(),
-        3 => ToonExtension::wind_waker(),
-        4 => ToonExtension::borderlands(),
-        5 => ToonExtension::flat_cel(),
-        _ => ToonExtension::default(),
-    }
-}
 
 fn setup(
     mut commands: Commands,
@@ -77,7 +55,7 @@ fn setup(
 
     common::spawn_instructions(
         &mut commands,
-        "Preset Showcase\nUse the pane slider to cycle through built-in presets\nEach preset creates a different toon look",
+        "Preset Showcase\nUse the pane slider to cycle through example sample looks\nEach look is built from the crate's neutral tuning API",
     );
 
     let shapes: Vec<(&str, Handle<Mesh>, Color)> = vec![
@@ -109,7 +87,7 @@ fn setup(
     ];
 
     let x_positions = [-5.6, -2.8, 0.0, 2.8, 5.6];
-    let extension = ToonExtension::anime_character();
+    let extension = common::sample_looks::anime_character();
 
     for (i, (name, mesh, color)) in shapes.into_iter().enumerate() {
         let x = x_positions[i];
@@ -146,7 +124,10 @@ fn setup(
             top: px(16.0),
             ..default()
         },
-        Text::new(format!("Preset: {}", PRESET_NAMES[0])),
+        Text::new(format!(
+            "Preset: {}",
+            common::sample_looks::SAMPLE_LOOK_NAMES[0]
+        )),
         TextFont {
             font_size: 26.0,
             ..default()
@@ -157,7 +138,11 @@ fn setup(
     PaneBuilder::new(PANE_TITLE)
         .slider(
             "Preset",
-            Slider::new(0.0..=(PRESET_NAMES.len() - 1) as f64, 0.0).step(1.0),
+            Slider::new(
+                0.0..=(common::sample_looks::SAMPLE_LOOK_NAMES.len() - 1) as f64,
+                0.0,
+            )
+            .step(1.0),
         )
         .at(PanePosition::TopRight)
         .spawn(&mut commands);
@@ -183,7 +168,7 @@ fn cycle_presets(
     }
     current.0 = idx;
 
-    let extension = preset_for(idx);
+    let extension = common::sample_looks::sample_look(idx);
     for handle in &objects {
         let Some(mat) = toon_materials.get_mut(handle) else {
             continue;
@@ -191,7 +176,9 @@ fn cycle_presets(
         mat.extension = extension.clone();
     }
 
-    let name = PRESET_NAMES.get(idx).unwrap_or(&"Custom");
+    let name = common::sample_looks::SAMPLE_LOOK_NAMES
+        .get(idx)
+        .unwrap_or(&"Custom");
     for mut text in &mut labels {
         text.0 = format!("Preset: {name}");
     }

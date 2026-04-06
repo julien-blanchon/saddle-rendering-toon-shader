@@ -21,7 +21,6 @@ fn main() {
         .add_plugins(common::pane_plugins())
         .add_systems(Startup, setup)
         .add_systems(Update, sync_params);
-    common::install_auto_exit(&mut app);
     app.run();
 }
 
@@ -79,7 +78,7 @@ fn setup(
         ToonScene,
         SceneRoot(flight_helmet),
         Transform::from_xyz(4.6, 0.0, -0.7).with_scale(Vec3::splat(1.35)),
-        ToonExtension::low_poly_prop()
+        common::sample_looks::low_poly_prop()
             .with_ramp_texture(warm_ramp)
             .with_rim(
                 ToonRim::default()

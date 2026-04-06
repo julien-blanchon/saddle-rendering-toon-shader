@@ -22,7 +22,6 @@ fn main() {
         .add_plugins(common::pane_plugins())
         .add_systems(Startup, setup)
         .add_systems(Update, (common::spin, sync_params));
-    common::install_auto_exit(&mut app);
     app.run();
 }
 
@@ -64,12 +63,12 @@ fn setup(
         ),
         (
             "Anime Style",
-            ToonExtension::anime_character(),
+            common::sample_looks::anime_character(),
             Color::srgb(0.92, 0.82, 0.68),
         ),
         (
             "Glossy Style",
-            ToonExtension::glossy_vehicle(),
+            common::sample_looks::glossy_vehicle(),
             Color::srgb(0.84, 0.26, 0.18),
         ),
     ];

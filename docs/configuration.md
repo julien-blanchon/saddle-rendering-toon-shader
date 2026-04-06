@@ -34,20 +34,25 @@
 | `intensity` | `f32` | `0.0` | `0.0..=2.0` practical | Rim brightness | `0.0` disables rim light |
 | `lit_side_only` | `bool` | `true` | `true` or `false` | Masks the rim by the diffuse visibility term | Useful for anime-style lit-side rims |
 
-## Presets
+## Neutral Builders
 
-| Preset | Intended Use | Key Traits |
+| Builder | Purpose | Notes |
 |------|------|------|
-| `ToonExtension::anime_character()` | Characters with strong readability | 2 bands, stronger specular, lit-side rim |
-| `ToonExtension::low_poly_prop()` | Props and diorama pieces | 4 bands, softened transitions, minimal specular |
-| `ToonExtension::glossy_vehicle()` | Vehicles or shiny hard-surface assets | strong specular band, stronger wrap, subtle rim |
-| `ToonExtension::wind_waker()` | Wind Waker / Ghibli soft pastel look | 2 bands, very soft edges, subtle warm rim, no specular |
-| `ToonExtension::borderlands()` | Hard ink-shaded comic look | 3 bands, zero softness, very dark shadows, no rim/specular |
-| `ToonExtension::flat_cel()` | Flat minimal cel shading | 2 bands, zero softness, deep shadows, no rim/specular |
+| `ToonExtension::banded(count)` | Start from stepped diffuse shading | Sets `diffuse_mode = Bands` |
+| `ToonExtension::ramped(handle)` | Start from ramp-texture diffuse shading | Equivalent to `default().with_ramp_texture(handle)` |
+| `ToonExtension::with_band_profile(count, softness)` | Tune band count and edge softness together | Keeps `Bands` mode active |
+| `ToonExtension::with_shadow_response(floor, tint)` | Tune shadow lift and shadow tint together | Helpful for authoring reusable material defaults |
+| `ToonExtension::without_specular()` | Disable the specular band at the extension level | Equivalent to `with_specular(ToonSpecular::disabled())` |
+| `ToonExtension::without_rim()` | Disable rim lighting at the extension level | Equivalent to `with_rim(ToonRim::disabled())` |
+| `ToonSpecular::disabled()` | Build an explicit no-specular config | `intensity = 0.0` |
+| `ToonRim::disabled()` | Build an explicit no-rim config | `intensity = 0.0` |
+
+Named artistic looks are intentionally kept out of the core crate. The example workspace rebuilds sample looks in `examples/common/src/sample_looks.rs` using the builders above.
 
 ## Performance Notes
 
 - The shader performs two PBR probe evaluations on the forward path to separate diffuse and specular behavior.
 - Ramp textures do not add extra draw passes, only one extra texture sample path in the fragment shader.
 - Scene replacement scans descendants while a tagged root is unresolved, then stops rescanning once the root is marked complete.
+- Converted materials keep whatever `StandardMaterial::opaque_render_method` the user already chose, so deferred-capable projects can preserve their render-path configuration.
 - Outline composition is kept out of the crate runtime to avoid adding another pass or helper mesh system to every consumer.

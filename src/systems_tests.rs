@@ -47,6 +47,50 @@ fn add_standard_material(app: &mut App, color: Color) -> Handle<StandardMaterial
         .add(StandardMaterial::from_color(color))
 }
 
+fn readable_profile() -> ToonExtension {
+    ToonExtension::banded(2)
+        .with_shadow_response(0.12, Color::srgb(0.43, 0.48, 0.7))
+        .with_specular(
+            crate::ToonSpecular::default()
+                .with_intensity(0.9)
+                .with_width(0.42)
+                .with_threshold(0.54),
+        )
+        .with_rim(
+            crate::ToonRim::default()
+                .with_intensity(0.28)
+                .with_threshold(0.55)
+                .with_softness(0.18),
+        )
+}
+
+fn soft_prop_profile() -> ToonExtension {
+    ToonExtension::default()
+        .with_band_profile(4, 0.18)
+        .with_shadow_response(0.24, Color::srgb(0.26, 0.3, 0.38))
+        .without_specular()
+        .with_rim(crate::ToonRim::default().with_intensity(0.06))
+}
+
+fn glossy_profile() -> ToonExtension {
+    ToonExtension::banded(3)
+        .with_shadow_response(0.14, Color::srgb(0.16, 0.2, 0.28))
+        .with_light_wrap(0.08)
+        .with_specular(
+            crate::ToonSpecular::new(Color::srgb(1.0, 0.98, 0.9))
+                .with_intensity(1.1)
+                .with_width(0.58)
+                .with_threshold(0.48)
+                .with_softness(0.1),
+        )
+        .with_rim(
+            crate::ToonRim::new(Color::srgb(1.0, 0.95, 0.85))
+                .with_intensity(0.22)
+                .with_threshold(0.5)
+                .with_softness(0.16),
+        )
+}
+
 #[test]
 fn plugin_registers_resources_and_starts_inactive_until_activated() {
     let mut app = test_app();
@@ -116,7 +160,7 @@ fn scene_replacement_reuses_one_toon_material_per_source_handle_and_stops() {
         .spawn((
             Name::new("Scene Root"),
             SceneRoot(Handle::<Scene>::default()),
-            ToonExtension::anime_character(),
+            readable_profile(),
         ))
         .id();
 
@@ -194,7 +238,7 @@ fn local_override_blocks_root_sync_and_root_sync_updates_shared_descendants() {
         .spawn((
             Name::new("Root"),
             SceneRoot(Handle::<Scene>::default()),
-            ToonExtension::low_poly_prop(),
+            soft_prop_profile(),
         ))
         .id();
 
@@ -215,7 +259,7 @@ fn local_override_blocks_root_sync_and_root_sync_updates_shared_descendants() {
             overridden_mesh,
             MeshMaterial3d(base_material),
             ChildOf(root),
-            ToonExtension::glossy_vehicle(),
+            glossy_profile(),
         ))
         .id();
 
@@ -228,9 +272,7 @@ fn local_override_blocks_root_sync_and_root_sync_updates_shared_descendants() {
         .expect("overridden child should use a toon material")
         .clone();
 
-    app.world_mut()
-        .entity_mut(root)
-        .insert(ToonExtension::anime_character());
+    app.world_mut().entity_mut(root).insert(readable_profile());
 
     app.world_mut().run_schedule(Tick);
 
@@ -288,7 +330,7 @@ fn deactivation_stops_runtime_work_until_reactivated() {
     app.world_mut().run_schedule(Deactivate);
     app.world_mut()
         .entity_mut(entity)
-        .insert(ToonExtension::anime_character());
+        .insert(readable_profile());
     app.world_mut().run_schedule(Tick);
 
     let material_handle = app

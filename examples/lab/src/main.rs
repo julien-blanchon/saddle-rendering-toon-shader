@@ -13,7 +13,7 @@ use bevy::winit::WinitSettings;
 #[cfg(feature = "dev")]
 use bevy_brp_extras::BrpExtrasPlugin;
 use common::DemoSpin;
-use saddle_rendering_toon_shader::{ToonExtension, ToonShaderDiagnostics, ToonShaderPlugin};
+use saddle_rendering_toon_shader::{ToonShaderDiagnostics, ToonShaderPlugin};
 
 const DEFAULT_BRP_PORT: u16 = 15_744;
 const LAB_EXIT_ENV: &str = "TOON_SHADER_LAB_EXIT_AFTER_SECONDS";
@@ -202,7 +202,7 @@ fn setup(
                 axis: Vec3::new(0.0, 1.0, 0.18),
                 speed: 0.42,
             },
-            ToonExtension::anime_character(),
+            common::sample_looks::anime_character(),
         ))
         .id();
 
@@ -223,7 +223,7 @@ fn setup(
                 axis: Vec3::new(0.18, 1.0, 0.08),
                 speed: 0.58,
             },
-            ToonExtension::glossy_vehicle(),
+            common::sample_looks::glossy_vehicle(),
         ))
         .id();
 
@@ -252,7 +252,7 @@ fn setup(
                 axis: Vec3::new(0.12, 1.0, 0.24),
                 speed: 0.34,
             },
-            ToonExtension::low_poly_prop(),
+            common::sample_looks::low_poly_prop(),
         ))
         .id();
 
@@ -271,7 +271,7 @@ fn setup(
             Name::new("Toon Flight Helmet"),
             SceneRoot(flight_helmet),
             Transform::from_translation(TOON_HELMET_POS).with_scale(Vec3::splat(2.3)),
-            ToonExtension::low_poly_prop()
+            common::sample_looks::low_poly_prop()
                 .with_ramp_texture(warm_ramp)
                 .with_shadow_floor(0.52)
                 .with_shadow_tint(Color::srgb(0.42, 0.46, 0.56))

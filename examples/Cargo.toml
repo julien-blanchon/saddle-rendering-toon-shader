@@ -6,6 +6,7 @@ members = [
     "gltf_replace",
     "rim_specular",
     "showcase",
+    "outline_optional",
     "lab",
 ]
 resolver = "3"

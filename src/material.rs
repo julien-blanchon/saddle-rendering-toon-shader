@@ -1,6 +1,6 @@
 use bevy::color::ColorToComponents;
 use bevy::ecs::component::Component;
-use bevy::pbr::{ExtendedMaterial, MaterialExtension, OpaqueRendererMethod, StandardMaterial};
+use bevy::pbr::{ExtendedMaterial, MaterialExtension, StandardMaterial};
 use bevy::prelude::*;
 use bevy::render::render_asset::RenderAssets;
 use bevy::render::render_resource::{AsBindGroup, AsBindGroupShaderType, ShaderType};
@@ -33,6 +33,10 @@ impl ToonSpecular {
             color,
             ..Self::default()
         }
+    }
+
+    pub fn disabled() -> Self {
+        Self::default().with_intensity(0.0)
     }
 
     pub fn with_threshold(mut self, threshold: f32) -> Self {
@@ -97,6 +101,10 @@ impl ToonRim {
             color,
             ..Self::default()
         }
+    }
+
+    pub fn disabled() -> Self {
+        Self::default().with_intensity(0.0)
     }
 
     pub fn with_threshold(mut self, threshold: f32) -> Self {
@@ -194,95 +202,19 @@ impl ToonExtension {
         Self::default().with_band_count(band_count)
     }
 
-    pub fn anime_character() -> Self {
-        Self::banded(2)
-            .with_shadow_tint(Color::srgb(0.43, 0.48, 0.7))
-            .with_shadow_floor(0.12)
-            .with_specular(
-                ToonSpecular::default()
-                    .with_intensity(0.9)
-                    .with_width(0.42)
-                    .with_threshold(0.54),
-            )
-            .with_rim(
-                ToonRim::default()
-                    .with_intensity(0.28)
-                    .with_threshold(0.55)
-                    .with_softness(0.18),
-            )
-    }
-
-    pub fn low_poly_prop() -> Self {
-        Self::banded(4)
-            .with_band_softness(0.18)
-            .with_shadow_floor(0.24)
-            .with_shadow_tint(Color::srgb(0.26, 0.3, 0.38))
-            .with_specular(ToonSpecular::default().with_intensity(0.0))
-            .with_rim(ToonRim::default().with_intensity(0.06))
-    }
-
-    pub fn glossy_vehicle() -> Self {
-        Self::banded(3)
-            .with_shadow_floor(0.14)
-            .with_light_wrap(0.08)
-            .with_shadow_tint(Color::srgb(0.16, 0.2, 0.28))
-            .with_specular(
-                ToonSpecular::new(Color::srgb(1.0, 0.98, 0.9))
-                    .with_intensity(1.1)
-                    .with_width(0.58)
-                    .with_threshold(0.48)
-                    .with_softness(0.1),
-            )
-            .with_rim(
-                ToonRim::new(Color::srgb(1.0, 0.95, 0.85))
-                    .with_intensity(0.22)
-                    .with_threshold(0.5)
-                    .with_softness(0.16),
-            )
-    }
-
-    /// Wind Waker style: 2-band cel shading with a slight gradient edge,
-    /// warm shadow tint, and a subtle rim highlight.
-    pub fn wind_waker() -> Self {
-        Self::banded(2)
-            .with_band_softness(0.06)
-            .with_shadow_floor(0.22)
-            .with_shadow_tint(Color::srgb(0.45, 0.38, 0.55))
-            .with_light_wrap(0.04)
-            .with_specular(ToonSpecular::default().with_intensity(0.0))
-            .with_rim(
-                ToonRim::new(Color::srgb(1.0, 0.96, 0.88))
-                    .with_intensity(0.2)
-                    .with_threshold(0.6)
-                    .with_softness(0.15),
-            )
-    }
-
-    /// Borderlands style: high-contrast cel shading with hard band edges,
-    /// deep shadows, and no specular or rim (outlines are handled externally).
-    pub fn borderlands() -> Self {
-        Self::banded(3)
-            .with_band_softness(0.0)
-            .with_shadow_floor(0.05)
-            .with_shadow_tint(Color::srgb(0.12, 0.1, 0.14))
-            .with_light_wrap(-0.05)
-            .with_specular(ToonSpecular::default().with_intensity(0.0))
-            .with_rim(ToonRim::default().with_intensity(0.0))
-    }
-
-    /// Flat cel shading: completely hard 2-band split, no smoothing.
-    /// The simplest possible toon look.
-    pub fn flat_cel() -> Self {
-        Self::banded(2)
-            .with_band_softness(0.0)
-            .with_shadow_floor(0.08)
-            .with_shadow_tint(Color::srgb(0.3, 0.28, 0.36))
-            .with_specular(ToonSpecular::default().with_intensity(0.0))
-            .with_rim(ToonRim::default().with_intensity(0.0))
+    pub fn ramped(ramp_texture: Handle<Image>) -> Self {
+        Self::default().with_ramp_texture(ramp_texture)
     }
 
     pub fn with_band_count(mut self, band_count: u32) -> Self {
         self.band_count = band_count;
+        self.diffuse_mode = ToonDiffuseMode::Bands;
+        self
+    }
+
+    pub fn with_band_profile(mut self, band_count: u32, band_softness: f32) -> Self {
+        self.band_count = band_count;
+        self.band_softness = band_softness;
         self.diffuse_mode = ToonDiffuseMode::Bands;
         self
     }
@@ -302,6 +234,12 @@ impl ToonExtension {
         self
     }
 
+    pub fn with_shadow_response(mut self, shadow_floor: f32, shadow_tint: Color) -> Self {
+        self.shadow_floor = shadow_floor;
+        self.shadow_tint = shadow_tint;
+        self
+    }
+
     pub fn with_light_wrap(mut self, light_wrap: f32) -> Self {
         self.light_wrap = light_wrap;
         self
@@ -312,9 +250,17 @@ impl ToonExtension {
         self
     }
 
+    pub fn without_specular(self) -> Self {
+        self.with_specular(ToonSpecular::disabled())
+    }
+
     pub fn with_rim(mut self, rim: ToonRim) -> Self {
         self.rim = rim;
         self
+    }
+
+    pub fn without_rim(self) -> Self {
+        self.with_rim(ToonRim::disabled())
     }
 
     pub fn with_ramp_texture(mut self, ramp_texture: Handle<Image>) -> Self {
@@ -333,8 +279,7 @@ impl ToonExtension {
         matches!(self.diffuse_mode, ToonDiffuseMode::RampTexture) && self.ramp_texture.is_some()
     }
 
-    pub fn material(self, mut base: StandardMaterial) -> ToonMaterial {
-        base.opaque_render_method = OpaqueRendererMethod::Forward;
+    pub fn material(self, base: StandardMaterial) -> ToonMaterial {
         ToonMaterial {
             base,
             extension: self,
@@ -408,10 +353,8 @@ pub(crate) fn build_toon_material(
     base: &StandardMaterial,
     extension: &ToonExtension,
 ) -> ToonMaterial {
-    let mut cloned = base.clone();
-    cloned.opaque_render_method = OpaqueRendererMethod::Forward;
     ToonMaterial {
-        base: cloned,
+        base: base.clone(),
         extension: extension.clone(),
     }
 }

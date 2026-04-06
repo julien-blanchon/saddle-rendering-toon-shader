@@ -9,7 +9,7 @@ use saddle_rendering_toon_shader_example_common as common;
 use bevy::prelude::*;
 use common::DemoSpin;
 use common::saddle_pane::prelude::*;
-use saddle_rendering_toon_shader::{ToonExtension, ToonMaterial, ToonShaderPlugin};
+use saddle_rendering_toon_shader::{ToonMaterial, ToonShaderPlugin};
 
 const PANE_TITLE: &str = "Toon Parameters";
 
@@ -21,7 +21,6 @@ fn main() {
         .add_plugins(common::pane_plugins())
         .add_systems(Startup, setup)
         .add_systems(Update, (common::spin, sync_toon_params));
-    common::install_auto_exit(&mut app);
     app.run();
 }
 
@@ -75,7 +74,7 @@ fn setup(
     let pbr_z = 2.0;
     let toon_z = -2.0;
 
-    let extension = ToonExtension::anime_character();
+    let extension = common::sample_looks::anime_character();
 
     for (i, (name, mesh, color)) in shapes.into_iter().enumerate() {
         let x = x_positions[i];

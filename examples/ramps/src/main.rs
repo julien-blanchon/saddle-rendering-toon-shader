@@ -6,7 +6,10 @@ use saddle_rendering_toon_shader_example_common as common;
 
 use bevy::prelude::*;
 use common::DemoSpin;
+use common::saddle_pane::prelude::*;
 use saddle_rendering_toon_shader::{ToonExtension, ToonMaterial, ToonShaderPlugin};
+
+const PANE_TITLE: &str = "Ramp Comparison";
 
 fn main() {
     let mut app = App::new();
@@ -15,11 +18,14 @@ fn main() {
             common::default_plugins("Toon Shader — Ramp Textures"),
             ToonShaderPlugin::default(),
         ))
+        .add_plugins(common::pane_plugins())
         .add_systems(Startup, setup)
-        .add_systems(Update, common::spin);
-    common::install_auto_exit(&mut app);
+        .add_systems(Update, (common::spin, sync_params));
     app.run();
 }
+
+#[derive(Component)]
+struct RampDemoObject;
 
 fn setup(
     mut commands: Commands,
@@ -98,11 +104,12 @@ fn setup(
         // Top row: ramp texture version
         commands.spawn((
             Name::new(format!("{} Sphere", labels[i])),
+            RampDemoObject,
             Mesh3d(meshes.add(Sphere::new(1.1).mesh().uv(48, 24))),
             MeshMaterial3d(
                 toon_materials.add(
-                    ToonExtension::default()
-                        .with_ramp_texture(ramp)
+                    ToonExtension::ramped(ramp)
+                        .with_shadow_floor(0.18)
                         .material(base_mat.clone()),
                 ),
             ),
@@ -116,11 +123,13 @@ fn setup(
         // Bottom row: discrete band version (same color)
         commands.spawn((
             Name::new(format!("{} Banded Sphere", labels[i])),
+            RampDemoObject,
             Mesh3d(meshes.add(Sphere::new(1.1).mesh().uv(48, 24))),
             MeshMaterial3d(
                 toon_materials.add(
-                    ToonExtension::banded(4)
-                        .with_band_softness(0.08)
+                    ToonExtension::default()
+                        .with_band_profile(4, 0.08)
+                        .with_shadow_floor(0.18)
                         .material(base_mat),
                 ),
             ),
@@ -130,5 +139,35 @@ fn setup(
                 speed: 0.32 + i as f32 * 0.06,
             },
         ));
+    }
+
+    PaneBuilder::new(PANE_TITLE)
+        .slider("Bands", Slider::new(2.0..=8.0, 4.0).step(1.0))
+        .slider("Band Softness", Slider::new(0.0..=1.0, 0.08).step(0.01))
+        .slider("Shadow Floor", Slider::new(0.0..=1.0, 0.18).step(0.01))
+        .at(PanePosition::TopRight)
+        .spawn(&mut commands);
+}
+
+fn sync_params(
+    store: Res<PaneStore>,
+    demos: Query<&MeshMaterial3d<ToonMaterial>, With<RampDemoObject>>,
+    mut toon_materials: ResMut<Assets<ToonMaterial>>,
+) {
+    if !store.is_changed() {
+        return;
+    }
+
+    let bands: f64 = store.get_or(PANE_TITLE, "Bands", 4.0);
+    let softness: f64 = store.get_or(PANE_TITLE, "Band Softness", 0.08);
+    let shadow_floor: f64 = store.get_or(PANE_TITLE, "Shadow Floor", 0.18);
+
+    for handle in &demos {
+        let Some(material) = toon_materials.get_mut(handle) else {
+            continue;
+        };
+        material.extension.band_count = bands as u32;
+        material.extension.band_softness = softness as f32;
+        material.extension.shadow_floor = shadow_floor as f32;
     }
 }

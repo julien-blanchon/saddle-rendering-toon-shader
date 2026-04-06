@@ -32,7 +32,7 @@ Because the diffuse probe still goes through Bevy's shadow samplers, quantizatio
 
 Bevy's deferred prepass only exposes material inputs, not the final lit result. Toon banding in this crate depends on post-lighting data, so the stylized effect is implemented on the forward path.
 
-The shader still provides a deferred branch so materials compile cleanly in mixed projects, but that branch writes the normal deferred output without stylization. The crate therefore forces converted materials to `OpaqueRendererMethod::Forward`.
+The shader still provides a deferred branch so materials compile cleanly in mixed projects, but that branch writes the normal deferred output without stylization. Converted materials therefore preserve the base `StandardMaterial::opaque_render_method` instead of overriding the project's render-path choice.
 
 ## Replacement Lifecycle
 
